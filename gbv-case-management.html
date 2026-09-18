@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Surokkha | GBV Case Response & Referral Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8eeeb;--surface:#fbfcfb;--ink:#14282c;--muted:#52656a;--line:#c7d3cf;--brand:#1c5a58;--brand-ink:#ffffff;--soft:#dbe6e2;--exit:#d9531b;--high:#a8231b;--high-bg:#f6dcd8;--med:#7d5208;--med-bg:#f4e6c6;--low:#22613f;--low-bg:#d6ecdf;--focus:#d9531b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b1d;--surface:#152527;--ink:#e2ebe8;--muted:#9aaeaa;--line:#2b3f42;--brand:#62b2aa;--brand-ink:#08201f;--soft:#1d3235;--high:#ff8f84;--high-bg:#3b1c1a;--med:#efc163;--med-bg:#382d14;--low:#80d2a8;--low-bg:#153223}}
+:root[data-theme="dark"]{--bg:#0e1b1d;--surface:#152527;--ink:#e2ebe8;--muted:#9aaeaa;--line:#2b3f42;--brand:#62b2aa;--brand-ink:#08201f;--soft:#1d3235;--high:#ff8f84;--high-bg:#3b1c1a;--med:#efc163;--med-bg:#382d14;--low:#80d2a8;--low-bg:#153223}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 'Atkinson Hyperlegible','Hind Siliguri',system-ui,-apple-system,'Segoe UI',sans-serif}
+html[lang="bn"] body{font-family:'Hind Siliguri','Atkinson Hyperlegible',system-ui,sans-serif}
+.top{display:flex;align-items:center;gap:.6rem;padding:.55rem 1rem;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.brand{font-weight:700;font-size:1.15rem;line-height:1.15}
+.brand small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.spacer{flex:1}
+.top select{width:auto;padding:.35rem .5rem;font-size:.88rem}
+.pill{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:.4rem .7rem;font:inherit;font-size:.88rem;cursor:pointer}
+.exit{background:var(--exit);color:#fff;border:0;border-radius:6px;padding:.45rem .95rem;font:inherit;font-weight:700;cursor:pointer}
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 60px)}
+nav{border-right:1px solid var(--line);padding:1rem .5rem;background:var(--surface)}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;padding:.55rem .8rem;border-radius:6px;color:var(--ink);font:inherit;cursor:pointer}
+nav button:hover{background:var(--soft)}
+nav button[aria-current="page"]{background:var(--soft);font-weight:700;box-shadow:inset 3px 0 0 var(--brand)}
+main{padding:1.25rem clamp(1rem,3vw,2.25rem) 3rem;max-width:1080px;width:100%}
+h1{font-size:1.65rem;line-height:1.2;margin:.25rem 0 .35rem}
+h2{font-size:1.12rem;margin:1.8rem 0 .6rem}
+h3{font-size:1rem;margin:1rem 0 .4rem}
+.lede{color:var(--muted);margin:0 0 1.25rem;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem}
+.panel>h2:first-child{margin-top:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem;margin-bottom:.5rem}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem}
+.tile b{display:block;font-size:2.1rem;line-height:1.05}
+.tile span{color:var(--muted);font-size:.9rem}
+.tile.alert{border-color:var(--high)}
+.tile.alert b{color:var(--high)}
+.list{display:flex;flex-direction:column;gap:.5rem}
+.row{display:flex;gap:.6rem 1rem;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.65rem .9rem;flex-wrap:wrap}
+.row .meta{color:var(--muted);font-size:.88rem}
+button.rowlink{all:unset;cursor:pointer;display:flex;gap:.6rem 1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.65rem .9rem}
+button.rowlink:hover{border-color:var(--brand)}
+button.rowlink:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.chip{display:inline-block;border-radius:999px;padding:.08rem .6rem;font-size:.8rem;font-weight:700;white-space:nowrap}
+.chip.High{color:var(--high);background:var(--high-bg)}
+.chip.Medium{color:var(--med);background:var(--med-bg)}
+.chip.Low{color:var(--low);background:var(--low-bg)}
+.chip.n{background:var(--soft);color:var(--ink);font-weight:400}
+.chip.late{color:var(--high);background:transparent;border:1px solid var(--high)}
+.code{font-weight:700;letter-spacing:.015em}
+label{display:block;font-weight:700;margin:.85rem 0 .3rem}
+input,select,textarea{width:100%;font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+textarea{min-height:5rem;resize:vertical}
+.check{display:flex;gap:.6rem;align-items:flex-start;padding:.4rem 0;font-weight:400;margin:0}
+.check input{width:1.1rem;height:1.1rem;margin-top:.25rem;flex:none}
+.radios{display:flex;gap:1.25rem;flex-wrap:wrap}
+.btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:6px;padding:.55rem 1.05rem;font:inherit;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.btn.danger{background:var(--high);color:#fff}
+.btn.sm{padding:.3rem .7rem;font-size:.88rem}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.1rem}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.steps{display:flex;gap:.3rem;margin:.4rem 0 1.2rem}
+.steps span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.steps span.on{background:var(--brand)}
+.stepname{color:var(--muted);font-size:.9rem;margin:0}
+.notice{border-left:4px solid var(--brand);background:var(--soft);padding:.7rem .95rem;border-radius:4px;margin:.8rem 0;max-width:72ch}
+.notice.crit{border-color:var(--high);background:var(--high-bg)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.2rem 1.25rem;margin:0}
+.facts div{padding:.35rem 0;border-bottom:1px solid var(--line)}
+.facts dt{color:var(--muted);font-size:.82rem}
+.facts dd{margin:0;font-weight:700}
+.clock{position:relative;height:30px;background:var(--soft);border-radius:6px;margin:2rem .5rem 2.4rem}
+.clock .fill{position:absolute;left:0;top:0;bottom:0;background:var(--brand);opacity:.4;border-radius:6px 0 0 6px}
+.clock .mark{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+.clock .mark span{position:absolute;top:100%;left:0;transform:translateX(-50%);font-size:.75rem;white-space:nowrap;margin-top:5px;color:var(--muted)}
+.clock .now{position:absolute;top:-1.55rem;transform:translateX(-50%);font-size:.78rem;font-weight:700;white-space:nowrap}
+.clockfacts{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.clockfacts div{background:var(--bg);border-radius:8px;padding:.6rem .8rem}
+.clockfacts b{font-size:1.35rem;display:block}
+.bar{display:grid;grid-template-columns:minmax(110px,38%) minmax(0,1fr) 2.8rem;gap:.6rem;align-items:center;margin:.35rem 0;font-size:.92rem}
+.bar i{display:block;height:14px;background:var(--brand);border-radius:3px;min-width:2px}
+.bar b{text-align:right}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:.55rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:700;font-size:.84rem}
+td select,td input{min-width:9rem}
+details.sop{background:var(--surface);border:1px solid var(--line);border-radius:8px;margin:.5rem 0;padding:0 1.1rem}
+details.sop summary{cursor:pointer;padding:.85rem 0;font-weight:700}
+details.sop summary small{font-weight:400;color:var(--muted);margin-left:.4rem}
+.sop-body{max-width:74ch;padding-bottom:1rem}
+.sop-body li{margin:.3rem 0}
+.sop-body table{margin:.6rem 0}
+.task{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--line)}
+.task input{width:1.1rem;height:1.1rem;margin-top:.25rem;flex:none}
+.task.done span{text-decoration:line-through;color:var(--muted)}
+.inline{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:.5rem;align-items:end}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 1.25rem}
+.note{padding:.6rem 0;border-bottom:1px solid var(--line)}
+.note .meta{color:var(--muted);font-size:.84rem}
+.muted{color:var(--muted)}.small{font-size:.86rem}
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.75rem}
+.svc .panel{margin:0}
+.svc a{color:var(--brand);font-weight:700;font-size:1.25rem;text-decoration:none}
+#lock{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:50;padding:1rem}
+#lock .panel{max-width:340px;width:100%}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.55rem 1.1rem;border-radius:6px;display:none;z-index:60;max-width:90vw}
+footer.credit{color:var(--muted);font-size:.84rem;margin-top:2rem}
+@media (max-width:820px){
+ .shell{grid-template-columns:1fr}
+ nav{position:fixed;bottom:0;left:0;right:0;display:flex;overflow-x:auto;border-right:0;border-top:1px solid var(--line);padding:.3rem;z-index:20;gap:.2rem}
+ nav button{white-space:nowrap;width:auto;text-align:center;font-size:.86rem;padding:.5rem .7rem}
+ nav button[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--brand)}
+ main{padding-bottom:6rem}
+ .hide-m{display:none}
+ #toast{bottom:5rem}
+ .grid2,.inline{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="lock" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <div class="panel">
+    <h2 id="lockTitle" style="margin-top:0"></h2>
+    <p class="muted small" id="lockHint"></p>
+    <label for="pin" id="pinLabel"></label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off">
+    <div class="actions"><button class="btn" data-act="unlock" id="unlockBtn"></button></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+const HR=36e5, DAY=864e5, KEY='surokkha_cms_v1', PIN='1234';
+
+/* ---------- vocabulary ---------- */
+const T={en:{
+app:'Surokkha',sub:'GBV case response and referral management',exit:'Quick exit',lock:'Lock',
+nav_dash:'Dashboard',nav_new:'New case',nav_cases:'Cases',nav_ref:'Referrals',nav_dir:'Service directory',nav_rep:'Reports',nav_sop:'SOP',nav_set:'Settings',
+r_caseworker:'Caseworker',r_supervisor:'Case supervisor',r_focal:'Referral focal point',r_me:'M&E officer',
+open:'Open cases',high:'High risk',fu_over:'Follow-ups overdue',ref_wait:'Referrals awaiting feedback',
+attention:'Needs attention today',window_t:'Survivors inside the 120-hour clinical window',nothing:'Nothing overdue. Review high-risk cases at the next case conference.',
+dash_lede:'Cases are identified by code only. Names and contact details stay on the paper consent form in the locked cabinet.',
+plan_over:'Action plan overdue',overdue:'Overdue',fu_due:'Follow-up overdue',ref_late:'Referral feedback overdue',
+new_t:'Open a new case',new_lede:'Work through each step with the survivor, in a private space, at their pace. Nothing is saved until you open the case.',
+s0:'Immediate safety',s1:'Informed consent',s2:'What happened',s3:'Risk assessment',s4:'Needs and plan',
+danger_q:'Is the survivor in immediate danger right now?',medical_q:'Does the survivor need emergency medical care?',yes:'Yes',no:'No',
+danger_msg:'Act on safety first. Call 999 or move the survivor to a safe place, and arrange emergency transport to the nearest One-Stop Crisis Centre or hospital. Finish this intake afterwards.',
+c_services:'I explained the services available and that the survivor can refuse any service at any time.',
+c_conf:'I explained confidentiality and its limits (imminent risk to life, child at risk of serious harm, court order).',
+c_cm:'The survivor agrees to case management by this agency.',
+c_share:'The survivor agrees that minimum necessary information may be shared with referral agencies they choose.',
+is_child:'The survivor is under 18',
+child_msg:'Child survivor: obtain consent from a non-offending caregiver and the child\'s assent where the child can give it. If no safe caregiver is available, the supervisor decides in the child\'s best interests and involves child protection services (SOP section 9).',
+need_cm:'Record the survivor\'s agreement to case management before continuing. Without it, give information about services only.',
+type:'Type of incident (GBVIMS)',incident:'Date and time of the most recent incident',loc:'Where it happened',perp:'Alleged perpetrator\'s relationship to survivor',age:'Age group',sex:'Sex',disab:'Survivor has a disability',district:'District office',tech:'Technology-facilitated (online, phone, images)',
+choose:'Choose',risk_lede:'Tick every statement the survivor confirms. Any red-flag item makes the case high risk.',risk_now:'Calculated risk level',
+needs_q:'Services the survivor wants now',worker:'Caseworker (name or staff ID)',summary:'First case note (facts only, no identifying details)',
+next:'Continue',back:'Back',create:'Open case',need_basic:'Choose the incident type and age group to continue.',created:'Case opened',
+cases_t:'Cases',all:'All',status:'Status',risk:'Risk',search:'Search by case code',
+case_back:'All cases',caseworker:'Caseworker',opened:'Opened',next_fu:'Next follow-up due',emergency:'Emergency at intake',child:'Child survivor',
+clock:'Clinical window since incident',now:'now',pep:'HIV PEP and forensic evidence (72 h)',ec:'Emergency contraception (120 h)',left:'hours left',passed:'window passed',
+clock_note:'Refer for medical care immediately. Care must never wait for a police report, GD or case filing.',
+flags:'Risk factors confirmed',noflags:'No risk factors recorded.',consent_t:'Consent on record',
+plan_t:'Action plan',task:'Task',due:'Due',add:'Add',noplan:'No tasks yet. Agree the first steps with the survivor.',
+refs_t:'Referrals',svc:'Service',note_opt:'Reason for referral (minimum necessary)',ref_consent:'Survivor consented to this specific referral',send:'Send referral',noref:'No referrals yet.',need_consent:'A referral needs the survivor\'s consent for that specific service.',
+share_warn:'Consent to share information was not given at intake. Ask again before any referral.',
+notes_t:'Case notes',add_note:'Add note',
+close_t:'Case closure',close_btn:'Close case',reopen:'Reopen case',closure_sup:'Closure needs supervisor sign-off (SOP 5.6). Ask your supervisor to review this case.',closed_on:'Closed',reason:'Reason',
+ref_page:'Referrals',ref_lede:'Receiving agencies acknowledge within 24 hours and report the outcome within 48 hours (SOP 7.4).',sent:'Sent',feedback:'Feedback from agency',save:'Save',case:'Case',
+dir_t:'Service directory',dir_lede:'Entries are a starting template. Confirm names, numbers, hours and focal points against the district referral pathway before use.',sector:'Sector',
+rep_t:'Reports',rep_lede:'Aggregate figures only. No case-level data leaves the agency without an information-sharing protocol.',suppress:'Prepare for external sharing (hide counts under 5)',
+k_total:'Total cases',k_plan:'Action plans on time',k_outcome:'Referrals with outcome recorded',k_close:'Average days to closure',by_type:'By type of incident',by_age:'By age group',by_perp:'By alleged perpetrator',ref_out:'Referral outcomes',
+sop_t:'Standard Operating Procedure',sop_lede:'GBV case response and referral management. Version 1.0, draft for adoption by the lead agency.',
+set_t:'Settings',role:'Working as',lang:'Language',demo:'Demo data',reset:'Restore demo cases',wipe:'Erase all data on this device',again:'Tap again to confirm',done:'Done',
+sec_t:'Security on this device',sec_body:'The screen locks after 5 minutes without activity. Demo PIN: 1234. Press Esc twice, or tap Quick exit, to leave instantly for a neutral page.',
+lock_t:'Screen locked',lock_hint:'Enter your PIN to continue.',pin:'PIN',unlock:'Unlock',bad_pin:'That PIN is not correct.',
+no_access:'Your role does not include access to individual case files.',
+proto:'Prototype for design and training. It stores data only in this browser. Do not enter real survivor information until the system runs on secured government infrastructure with individual log-ins.'
+},bn:{
+app:'সুরক্ষা',sub:'জেন্ডারভিত্তিক সহিংসতা: কেস সাড়াদান ও রেফারেল ব্যবস্থাপনা',exit:'দ্রুত প্রস্থান',lock:'লক',
+nav_dash:'ড্যাশবোর্ড',nav_new:'নতুন কেস',nav_cases:'কেসসমূহ',nav_ref:'রেফারেল',nav_dir:'সেবা নির্দেশিকা',nav_rep:'প্রতিবেদন',nav_sop:'এসওপি',nav_set:'সেটিংস',
+r_caseworker:'কেসওয়ার্কার',r_supervisor:'কেস সুপারভাইজার',r_focal:'রেফারেল ফোকাল পয়েন্ট',r_me:'এমঅ্যান্ডই কর্মকর্তা',
+open:'চলমান কেস',high:'উচ্চ ঝুঁকি',fu_over:'বিলম্বিত ফলোআপ',ref_wait:'রেফারেলের ফিডব্যাক বাকি',
+attention:'আজ মনোযোগ প্রয়োজন',window_t:'১২০ ঘণ্টার চিকিৎসা-সময়সীমার মধ্যে থাকা ভুক্তভোগী',nothing:'কোনো কাজ বিলম্বিত নেই। পরবর্তী কেস কনফারেন্সে উচ্চ ঝুঁকির কেস পর্যালোচনা করুন।',
+dash_lede:'কেস কেবল কোড দিয়ে শনাক্ত হয়। নাম ও যোগাযোগের তথ্য তালাবদ্ধ আলমারিতে কাগজের সম্মতিপত্রে থাকে।',
+plan_over:'কর্মপরিকল্পনা বিলম্বিত',overdue:'বিলম্বিত',fu_due:'ফলোআপ বিলম্বিত',ref_late:'রেফারেল ফিডব্যাক বিলম্বিত',
+new_t:'নতুন কেস খুলুন',new_lede:'নিরিবিলি স্থানে, ভুক্তভোগীর নিজের গতিতে প্রতিটি ধাপ সম্পন্ন করুন। কেস খোলার আগ পর্যন্ত কিছুই সংরক্ষিত হয় না।',
+s0:'তাৎক্ষণিক নিরাপত্তা',s1:'অবহিত সম্মতি',s2:'ঘটনার বিবরণ',s3:'ঝুঁকি মূল্যায়ন',s4:'প্রয়োজন ও পরিকল্পনা',
+danger_q:'ভুক্তভোগী কি এই মুহূর্তে তাৎক্ষণিক বিপদে আছেন?',medical_q:'ভুক্তভোগীর কি জরুরি চিকিৎসা প্রয়োজন?',yes:'হ্যাঁ',no:'না',
+danger_msg:'আগে নিরাপত্তা নিশ্চিত করুন। ৯৯৯-এ কল করুন বা ভুক্তভোগীকে নিরাপদ স্থানে নিন, এবং নিকটতম ওয়ান-স্টপ ক্রাইসিস সেন্টার বা হাসপাতালে জরুরি পরিবহনের ব্যবস্থা করুন। ইনটেক পরে সম্পন্ন করুন।',
+c_services:'আমি প্রাপ্য সেবাগুলো ব্যাখ্যা করেছি এবং জানিয়েছি যে ভুক্তভোগী যেকোনো সময় যেকোনো সেবা প্রত্যাখ্যান করতে পারেন।',
+c_conf:'আমি গোপনীয়তা ও এর সীমা (জীবনের তাৎক্ষণিক ঝুঁকি, শিশুর গুরুতর ক্ষতির ঝুঁকি, আদালতের আদেশ) ব্যাখ্যা করেছি।',
+c_cm:'ভুক্তভোগী এই সংস্থার কেস ব্যবস্থাপনায় সম্মত।',
+c_share:'ভুক্তভোগী সম্মত যে তাঁর বাছাই করা রেফারেল সংস্থার সঙ্গে ন্যূনতম প্রয়োজনীয় তথ্য শেয়ার করা যাবে।',
+is_child:'ভুক্তভোগীর বয়স ১৮ বছরের কম',
+child_msg:'শিশু ভুক্তভোগী: নির্যাতনে জড়িত নন এমন অভিভাবকের সম্মতি এবং সম্ভব হলে শিশুর নিজের সম্মতি (অ্যাসেন্ট) নিন। নিরাপদ অভিভাবক না থাকলে সুপারভাইজার শিশুর সর্বোত্তম স্বার্থে সিদ্ধান্ত নেবেন এবং শিশু সুরক্ষা সেবাকে যুক্ত করবেন (এসওপি অনুচ্ছেদ ৯)।',
+need_cm:'এগিয়ে যাওয়ার আগে কেস ব্যবস্থাপনায় ভুক্তভোগীর সম্মতি লিপিবদ্ধ করুন। সম্মতি না থাকলে কেবল সেবার তথ্য দিন।',
+type:'ঘটনার ধরন (GBVIMS)',incident:'সর্বশেষ ঘটনার তারিখ ও সময়',loc:'ঘটনাস্থল',perp:'অভিযুক্তের সঙ্গে ভুক্তভোগীর সম্পর্ক',age:'বয়স-শ্রেণি',sex:'লিঙ্গ',disab:'ভুক্তভোগীর প্রতিবন্ধিতা আছে',district:'জেলা কার্যালয়',tech:'প্রযুক্তি-সহায়িত (অনলাইন, ফোন, ছবি)',
+choose:'বাছাই করুন',risk_lede:'ভুক্তভোগী যে বক্তব্যগুলো নিশ্চিত করেন সেগুলোতে টিক দিন। যেকোনো লাল-সংকেত থাকলে কেসটি উচ্চ ঝুঁকির।',risk_now:'নিরূপিত ঝুঁকির মাত্রা',
+needs_q:'ভুক্তভোগী এখন যে সেবা চান',worker:'কেসওয়ার্কার (নাম বা স্টাফ আইডি)',summary:'প্রথম কেস নোট (কেবল তথ্য, শনাক্তকারী বিবরণ নয়)',
+next:'এগিয়ে যান',back:'পেছনে',create:'কেস খুলুন',need_basic:'এগিয়ে যেতে ঘটনার ধরন ও বয়স-শ্রেণি বাছাই করুন।',created:'কেস খোলা হয়েছে',
+cases_t:'কেসসমূহ',all:'সব',status:'অবস্থা',risk:'ঝুঁকি',search:'কেস কোড দিয়ে খুঁজুন',
+case_back:'সব কেস',caseworker:'কেসওয়ার্কার',opened:'খোলা হয়েছে',next_fu:'পরবর্তী ফলোআপ',emergency:'ইনটেকের সময় জরুরি অবস্থা',child:'শিশু ভুক্তভোগী',
+clock:'ঘটনার পর থেকে চিকিৎসা-সময়সীমা',now:'এখন',pep:'এইচআইভি পিইপি ও ফরেনসিক আলামত (৭২ ঘণ্টা)',ec:'জরুরি গর্ভনিরোধ (১২০ ঘণ্টা)',left:'ঘণ্টা বাকি',passed:'সময়সীমা পেরিয়ে গেছে',
+clock_note:'এখনই চিকিৎসার জন্য রেফার করুন। পুলিশ রিপোর্ট, জিডি বা মামলার জন্য চিকিৎসা কখনো অপেক্ষা করবে না।',
+flags:'নিশ্চিত ঝুঁকির কারণ',noflags:'কোনো ঝুঁকির কারণ লিপিবদ্ধ হয়নি।',consent_t:'লিপিবদ্ধ সম্মতি',
+plan_t:'কর্মপরিকল্পনা',task:'কাজ',due:'নির্ধারিত তারিখ',add:'যোগ করুন',noplan:'এখনো কোনো কাজ নেই। ভুক্তভোগীর সঙ্গে প্রথম পদক্ষেপ ঠিক করুন।',
+refs_t:'রেফারেল',svc:'সেবা',note_opt:'রেফারেলের কারণ (ন্যূনতম প্রয়োজনীয়)',ref_consent:'এই নির্দিষ্ট রেফারেলে ভুক্তভোগী সম্মতি দিয়েছেন',send:'রেফারেল পাঠান',noref:'এখনো কোনো রেফারেল নেই।',need_consent:'প্রতিটি রেফারেলের জন্য সংশ্লিষ্ট সেবায় ভুক্তভোগীর সম্মতি প্রয়োজন।',
+share_warn:'ইনটেকের সময় তথ্য শেয়ারের সম্মতি দেওয়া হয়নি। রেফারেলের আগে আবার জিজ্ঞাসা করুন।',
+notes_t:'কেস নোট',add_note:'নোট যোগ করুন',
+close_t:'কেস সমাপ্তি',close_btn:'কেস বন্ধ করুন',reopen:'কেস পুনরায় খুলুন',closure_sup:'কেস বন্ধে সুপারভাইজারের অনুমোদন লাগবে (এসওপি ৫.৬)। সুপারভাইজারকে কেসটি পর্যালোচনা করতে বলুন।',closed_on:'বন্ধ হয়েছে',reason:'কারণ',
+ref_page:'রেফারেল',ref_lede:'গ্রহণকারী সংস্থা ২৪ ঘণ্টার মধ্যে প্রাপ্তি স্বীকার করবে এবং ৪৮ ঘণ্টার মধ্যে ফলাফল জানাবে (এসওপি ৭.৪)।',sent:'প্রেরণ',feedback:'সংস্থার ফিডব্যাক',save:'সংরক্ষণ',case:'কেস',
+dir_t:'সেবা নির্দেশিকা',dir_lede:'এগুলো প্রাথমিক টেমপ্লেট। ব্যবহারের আগে জেলা রেফারেল পাথওয়ের সঙ্গে নাম, নম্বর, সময় ও ফোকাল পয়েন্ট মিলিয়ে নিন।',sector:'খাত',
+rep_t:'প্রতিবেদন',rep_lede:'কেবল সমষ্টিগত পরিসংখ্যান। তথ্য-বিনিময় প্রটোকল ছাড়া কোনো কেস-পর্যায়ের তথ্য সংস্থার বাইরে যাবে না।',suppress:'বাহ্যিক শেয়ারের জন্য প্রস্তুত করুন (৫-এর কম সংখ্যা লুকান)',
+k_total:'মোট কেস',k_plan:'সময়মতো কর্মপরিকল্পনা',k_outcome:'ফলাফল লিপিবদ্ধ রেফারেল',k_close:'সমাপ্তিতে গড় দিন',by_type:'ঘটনার ধরন অনুযায়ী',by_age:'বয়স-শ্রেণি অনুযায়ী',by_perp:'অভিযুক্ত অনুযায়ী',ref_out:'রেফারেলের ফলাফল',
+sop_t:'স্ট্যান্ডার্ড অপারেটিং প্রসিডিউর',sop_lede:'জেন্ডারভিত্তিক সহিংসতা: কেস সাড়াদান ও রেফারেল ব্যবস্থাপনা। সংস্করণ ১.০, লিড সংস্থার অনুমোদনের জন্য খসড়া। (বিস্তারিত পাঠ ইংরেজিতে)',
+set_t:'সেটিংস',role:'ভূমিকা',lang:'ভাষা',demo:'ডেমো তথ্য',reset:'ডেমো কেস পুনরুদ্ধার',wipe:'এই ডিভাইসের সব তথ্য মুছুন',again:'নিশ্চিত করতে আবার চাপুন',done:'সম্পন্ন',
+sec_t:'এই ডিভাইসের নিরাপত্তা',sec_body:'৫ মিনিট নিষ্ক্রিয় থাকলে স্ক্রিন লক হয়। ডেমো পিন: 1234। নিরপেক্ষ পাতায় তাৎক্ষণিক চলে যেতে দুবার Esc চাপুন বা দ্রুত প্রস্থান চাপুন।',
+lock_t:'স্ক্রিন লক করা',lock_hint:'চালিয়ে যেতে আপনার পিন দিন।',pin:'পিন',unlock:'আনলক',bad_pin:'পিন সঠিক নয়।',
+no_access:'আপনার ভূমিকায় একক কেস ফাইল দেখার অনুমতি নেই।',
+proto:'নকশা ও প্রশিক্ষণের জন্য প্রোটোটাইপ। তথ্য কেবল এই ব্রাউজারে থাকে। সুরক্ষিত সরকারি অবকাঠামো ও ব্যক্তিগত লগ-ইন চালু না হওয়া পর্যন্ত প্রকৃত ভুক্তভোগীর তথ্য দেবেন না।'
+}};
+
+const TYPES=[{k:'rape',en:'Rape',bn:'ধর্ষণ'},{k:'sexual',en:'Sexual assault',bn:'যৌন নিপীড়ন'},{k:'physical',en:'Physical assault',bn:'শারীরিক নির্যাতন'},{k:'forced',en:'Forced or child marriage',bn:'জোরপূর্বক বা বাল্যবিবাহ'},{k:'denial',en:'Denial of resources, opportunities or services',bn:'সম্পদ, সুযোগ বা সেবা থেকে বঞ্চনা'},{k:'psych',en:'Psychological or emotional abuse',bn:'মানসিক বা আবেগগত নির্যাতন'}];
+const LOCS=[{k:'home',en:'Home',bn:'বাড়ি'},{k:'work',en:'Workplace',bn:'কর্মস্থল'},{k:'public',en:'Public place or transport',bn:'জনসমাগমস্থল বা যানবাহন'},{k:'edu',en:'Educational institution',bn:'শিক্ষাপ্রতিষ্ঠান'},{k:'online',en:'Online or phone',bn:'অনলাইন বা ফোন'},{k:'other',en:'Other',bn:'অন্যান্য'}];
+const PERPS=[{k:'partner',en:'Spouse or intimate partner',bn:'স্বামী/স্ত্রী বা ঘনিষ্ঠ সঙ্গী'},{k:'family',en:'Other family member',bn:'পরিবারের অন্য সদস্য'},{k:'known',en:'Known, not family',bn:'পরিচিত, পরিবারের বাইরের'},{k:'authority',en:'Person in authority',bn:'কর্তৃত্বশালী ব্যক্তি'},{k:'stranger',en:'Stranger',bn:'অপরিচিত'},{k:'unknown',en:'Not disclosed',bn:'প্রকাশ করা হয়নি'}];
+const AGES=['0–11','12–17','18–25','26–40','41–59','60+'].map(a=>({k:a,en:a,bn:a.replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d])}));
+const SEXES=[{k:'f',en:'Female',bn:'নারী'},{k:'m',en:'Male',bn:'পুরুষ'},{k:'o',en:'Other or self-described',bn:'অন্যান্য'}];
+const DISTRICTS=[{k:'DHK',en:'Dhaka',bn:'ঢাকা'},{k:'CTG',en:'Chattogram',bn:'চট্টগ্রাম'},{k:'CXB',en:"Cox's Bazar",bn:'কক্সবাজার'},{k:'KHL',en:'Khulna',bn:'খুলনা'},{k:'RAJ',en:'Rajshahi',bn:'রাজশাহী'},{k:'SYL',en:'Sylhet',bn:'সিলেট'},{k:'BAR',en:'Barishal',bn:'বরিশাল'},{k:'RNG',en:'Rangpur',bn:'রংপুর'},{k:'MYM',en:'Mymensingh',bn:'ময়মনসিংহ'}];
+const RISKS=[
+{k:'threat',crit:1,en:'Threats to kill or seriously harm the survivor',bn:'হত্যা বা গুরুতর ক্ষতির হুমকি'},
+{k:'weapon',crit:1,en:'A weapon was used or threatened',bn:'অস্ত্র ব্যবহার বা ব্যবহারের হুমকি'},
+{k:'selfharm',crit:1,en:'Survivor has thoughts of harming themself',bn:'ভুক্তভোগীর নিজের ক্ষতি করার চিন্তা আছে'},
+{k:'access',w:2,en:'Perpetrator lives with or can easily reach the survivor',bn:'অভিযুক্ত একই বাড়িতে থাকে বা সহজে নাগাল পায়'},
+{k:'escalate',w:2,en:'Violence is becoming more frequent or severe',bn:'সহিংসতার পুনরাবৃত্তি বা মাত্রা বাড়ছে'},
+{k:'noshelter',w:2,en:'No safe place to stay tonight',bn:'আজ রাতে থাকার নিরাপদ জায়গা নেই'},
+{k:'injury',w:2,en:'Serious injury or pregnancy',bn:'গুরুতর আঘাত বা গর্ভাবস্থা'},
+{k:'depend',w:1,en:'Depends on the perpetrator for money, housing or care',bn:'অর্থ, বাসস্থান বা যত্নের জন্য অভিযুক্তের ওপর নির্ভরশীল'},
+{k:'pressure',w:1,en:'Pressure to settle, withdraw, or marry the perpetrator',bn:'আপস, অভিযোগ প্রত্যাহার বা অভিযুক্তকে বিয়ের চাপ'}];
+const NEEDS=[{k:'health',en:'Medical care',bn:'চিকিৎসা',s:'Health'},{k:'psych',en:'Psychosocial support',bn:'মনোসামাজিক সহায়তা',s:'Psychosocial'},{k:'safety',en:'Safety and protection',bn:'নিরাপত্তা ও সুরক্ষা',s:'Safety'},{k:'legal',en:'Legal aid and justice',bn:'আইনি সহায়তা ও বিচার',s:'Legal'},{k:'shelter',en:'Safe shelter',bn:'নিরাপদ আশ্রয়',s:'Shelter'},{k:'econ',en:'Livelihood support',bn:'জীবিকা সহায়তা',s:'Livelihood'},{k:'childp',en:'Child protection',bn:'শিশু সুরক্ষা',s:'Child protection'}];
+const SECTORS={Health:'স্বাস্থ্য',Psychosocial:'মনোসামাজিক',Safety:'নিরাপত্তা',Legal:'আইনি',Shelter:'আশ্রয়',Livelihood:'জীবিকা','Child protection':'শিশু সুরক্ষা',Helpline:'হেল্পলাইন'};
+const STATUSES=[{k:'Open',bn:'চলমান'},{k:'Action plan',bn:'কর্মপরিকল্পনা'},{k:'Follow-up',bn:'ফলোআপ'},{k:'Closed',bn:'বন্ধ'}];
+const REFST=[{k:'Sent',bn:'প্রেরিত'},{k:'Accepted',bn:'গৃহীত'},{k:'Delivered',bn:'সেবা প্রদত্ত'},{k:'Declined',bn:'গ্রহণ করা সম্ভব হয়নি'}];
+const RISKL={High:{en:'High',bn:'উচ্চ'},Medium:{en:'Medium',bn:'মাঝারি'},Low:{en:'Low',bn:'নিম্ন'}};
+const CLOSE=[{k:'goals',en:'Case goals met and survivor is safe',bn:'লক্ষ্য অর্জিত ও ভুক্তভোগী নিরাপদ'},{k:'request',en:'Survivor asked to close the case',bn:'ভুক্তভোগী কেস বন্ধ করতে বলেছেন'},{k:'moved',en:'Survivor moved; case transferred with consent',bn:'ভুক্তভোগী স্থানান্তরিত; সম্মতিসহ কেস হস্তান্তর'},{k:'nocontact',en:'No contact for 30 days after three attempts',bn:'তিনবার চেষ্টার পর ৩০ দিন যোগাযোগ হয়নি'},{k:'other',en:'Other (explain in case notes)',bn:'অন্যান্য (কেস নোটে ব্যাখ্যা করুন)'}];
+const NAVS={caseworker:['dash','new','cases','ref','dir','sop','set'],supervisor:['dash','new','cases','ref','dir','rep','sop','set'],focal:['dash','ref','dir','sop','set'],me:['rep','dir','sop','set']};
+
+/* ---------- state ---------- */
+let S=load()||seed(), view=null, sel=null, wiz=null, filt={status:'active',risk:'all',q:''}, lastAct=Date.now(), escAt=0;
+if(!S.role)S.role='caseworker'; if(!S.lang)S.lang='en';
+
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const lang=()=>S.lang;
+const t=k=>(T[lang()]&&T[lang()][k])||T.en[k]||k;
+const L=o=>o?(o[lang()]||o.en||o.k):'';
+const find=(arr,k)=>arr.find(x=>x.k===k);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const bnNum=s=>lang()==='bn'?String(s).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]):String(s);
+const loc=()=>lang()==='bn'?'bn-BD':'en-GB';
+const fD=iso=>new Date(iso).toLocaleDateString(loc(),{day:'numeric',month:'short',year:'numeric'});
+const fDT=iso=>new Date(iso).toLocaleString(loc(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const z=n=>String(n).padStart(2,'0');
+const toLocal=d=>`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;
+const roleLabel=()=>t('r_'+S.role);
+const canCase=()=>S.role==='caseworker'||S.role==='supervisor';
+const stLabel=k=>lang()==='bn'?(find(STATUSES,k)||{}).bn||k:k;
+const rsLabel=k=>lang()==='bn'?(find(REFST,k)||{}).bn||k:k;
+const secLabel=k=>lang()==='bn'?(SECTORS[k]||k):k;
+const svcName=id=>{const s=S.services.find(x=>x.id===id);return s?L(s):id};
+
+function calcRisk(flags,isChild){let s=isChild?2:0,crit=false;(flags||[]).forEach(k=>{const r=find(RISKS,k);if(!r)return;if(r.crit)crit=true;else s+=r.w});return crit||s>=5?'High':s>=2?'Medium':'Low'}
+const interval=c=>({High:2,Medium:7,Low:14}[c.risk])*DAY;
+const lastContact=c=>Math.max(+new Date(c.created),...c.notes.map(n=>+new Date(n.date)));
+const fuDue=c=>lastContact(c)+interval(c);
+const fuOver=c=>c.status!=='Closed'&&Date.now()>fuDue(c);
+const planOver=c=>c.status!=='Closed'&&c.plan.length===0&&Date.now()>+new Date(c.created)+(c.risk==='High'?1:3)*DAY;
+const refOver=r=>r.status==='Sent'&&Date.now()-new Date(r.date)>48*HR;
+const hrsSince=c=>(Date.now()-new Date(c.incident))/HR;
+const inWindow=c=>(c.type==='rape'||c.type==='sexual')&&c.status!=='Closed'&&hrsSince(c)<120;
+const chip=r=>`<span class="chip ${r}">${esc(L(RISKL[r]))}</span>`;
+
+/* ---------- demo data (fictional) ---------- */
+function seed(){
+ const now=Date.now(), ago=h=>new Date(now-h*HR).toISOString();
+ const services=[
+  {id:'s1',en:'National Emergency Service',bn:'জাতীয় জরুরি সেবা',num:'999',sector:'Safety',hours:'24/7',note:{en:'Police, fire and ambulance for immediate danger.',bn:'তাৎক্ষণিক বিপদে পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্স।'}},
+  {id:'s2',en:'National Helpline Centre for Violence against Women and Children',bn:'নারী ও শিশু নির্যাতন প্রতিরোধে ন্যাশনাল হেল্পলাইন সেন্টার',num:'109',sector:'Helpline',hours:'24/7',note:{en:'Information, counselling and linkage to services (Ministry of Women and Children Affairs).',bn:'তথ্য, কাউন্সেলিং ও সেবার সঙ্গে সংযোগ (মহিলা ও শিশু বিষয়ক মন্ত্রণালয়)।'}},
+  {id:'s3',en:'One-Stop Crisis Centre (medical college hospital)',bn:'ওয়ান-স্টপ ক্রাইসিস সেন্টার (মেডিকেল কলেজ হাসপাতাল)',num:'',sector:'Health',hours:'24/7',note:{en:'Medical care, forensic examination, police and legal support, and counselling in one place.',bn:'এক জায়গায় চিকিৎসা, ফরেনসিক পরীক্ষা, পুলিশ ও আইনি সহায়তা এবং কাউন্সেলিং।'}},
+  {id:'s4',en:'One-Stop Crisis Cell (district or upazila hospital)',bn:'ওয়ান-স্টপ ক্রাইসিস সেল (জেলা বা উপজেলা হাসপাতাল)',num:'',sector:'Health',hours:'',note:{en:'First-line medical care and referral to the nearest centre.',bn:'প্রাথমিক চিকিৎসা ও নিকটতম সেন্টারে রেফারেল।'}},
+  {id:'s5',en:'Police Victim Support Centre',bn:'পুলিশ ভিকটিম সাপোর্ট সেন্টার',num:'',sector:'Safety',hours:'24/7',note:{en:'Temporary protection, statement recording with a female officer, and case filing support.',bn:'অস্থায়ী সুরক্ষা, নারী কর্মকর্তার মাধ্যমে জবানবন্দি ও মামলা দায়েরে সহায়তা।'}},
+  {id:'s6',en:'National Trauma Counselling Centre',bn:'ন্যাশনাল ট্রমা কাউন্সেলিং সেন্টার',num:'',sector:'Psychosocial',hours:'',note:{en:'Specialised psychosocial counselling for survivors.',bn:'ভুক্তভোগীদের জন্য বিশেষায়িত মনোসামাজিক কাউন্সেলিং।'}},
+  {id:'s7',en:'Government Legal Aid (NLASO call centre)',bn:'সরকারি আইনি সহায়তা (জাতীয় আইনগত সহায়তা প্রদান সংস্থা কল সেন্টার)',num:'16430',sector:'Legal',hours:'',note:{en:'Free legal advice; links to the District Legal Aid Office.',bn:'বিনামূল্যে আইনি পরামর্শ; জেলা লিগ্যাল এইড অফিসের সঙ্গে সংযোগ।'}},
+  {id:'s8',en:'District Legal Aid Office',bn:'জেলা লিগ্যাল এইড অফিস',num:'',sector:'Legal',hours:'',note:{en:'Panel lawyers, alternative dispute resolution only where lawful and safe.',bn:'প্যানেল আইনজীবী; আইনসম্মত ও নিরাপদ হলে তবেই বিকল্প বিরোধ নিষ্পত্তি।'}},
+  {id:'s9',en:'Safe shelter (government or NGO)',bn:'নিরাপদ আশ্রয়কেন্দ্র (সরকারি বা এনজিও)',num:'',sector:'Shelter',hours:'',note:{en:'Short-stay protective shelter; check age and admission criteria.',bn:'স্বল্পমেয়াদি সুরক্ষামূলক আশ্রয়; বয়স ও ভর্তির শর্ত দেখে নিন।'}},
+  {id:'s10',en:'Child Helpline',bn:'চাইল্ড হেল্পলাইন',num:'1098',sector:'Child protection',hours:'24/7',note:{en:'Child protection response and linkage to social workers.',bn:'শিশু সুরক্ষা সাড়াদান ও সমাজকর্মীর সঙ্গে সংযোগ।'}},
+  {id:'s11',en:'Upazila Women Affairs Office',bn:'উপজেলা মহিলা বিষয়ক কার্যালয়',num:'',sector:'Livelihood',hours:'',note:{en:'Livelihood schemes, allowances and training.',bn:'জীবিকা কর্মসূচি, ভাতা ও প্রশিক্ষণ।'}}
+ ];
+ const cases=[
+  {id:'GBV-DHK-2026-0041',created:ago(20),incident:ago(30),type:'rape',loc:'public',perp:'known',age:'18–25',sex:'f',disab:false,district:'DHK',tech:false,isChild:false,risk:'High',flags:['threat','noshelter'],needs:['health','psych','legal','safety'],consent:{services:true,conf:true,cm:true,share:true,date:ago(20)},worker:'CW-07',status:'Follow-up',emergency:true,planAt:ago(19),
+   plan:[{task:'Urgent medical referral: PEP, emergency contraception, forensic exam (with consent)',due:ago(19),done:true},{task:'Develop safety plan with the survivor',due:ago(4),done:true},{task:'Arrange legal aid and justice',due:ago(-4),done:false}],
+   referrals:[{id:'R1',svc:'s3',note:'Post-rape care within 72 hours',date:ago(19),status:'Delivered',feedback:'Examined, PEP started, medico-legal certificate issued.',upd:ago(12)},{id:'R2',svc:'s7',note:'Legal advice on filing',date:ago(6),status:'Sent',feedback:''}],
+   notes:[{date:ago(20),by:'CW-07',text:'Survivor came with a friend. Accompanied to OCC.'},{date:ago(8),by:'CW-07',text:'Staying with aunt temporarily. Safety plan agreed.'}],closure:null},
+  {id:'GBV-CXB-2026-0017',created:ago(24*6),incident:ago(24*7),type:'forced',loc:'home',perp:'family',age:'12–17',sex:'f',disab:false,district:'CXB',tech:false,isChild:true,risk:'High',flags:['pressure','access'],needs:['childp','psych'],consent:{services:true,conf:true,cm:true,share:true,date:ago(24*6)},worker:'CW-12',status:'Follow-up',emergency:false,planAt:ago(24*6-3),
+   plan:[{task:'Refer to child protection services',due:ago(24*5),done:true},{task:'Case conference with supervisor',due:ago(24*3),done:false}],
+   referrals:[{id:'R3',svc:'s10',note:'Planned marriage of a minor',date:ago(24*5),status:'Sent',feedback:''}],
+   notes:[{date:ago(24*4),by:'CW-12',text:'Mother supportive. Father insists on marriage next month.'}],closure:null},
+  {id:'GBV-KHL-2026-0009',created:ago(24*12),incident:ago(24*13),type:'physical',loc:'home',perp:'partner',age:'26–40',sex:'f',disab:false,district:'KHL',tech:false,isChild:false,risk:'Medium',flags:['access','depend'],needs:['shelter','legal','psych'],consent:{services:true,conf:true,cm:true,share:true,date:ago(24*12)},worker:'CW-03',status:'Follow-up',emergency:false,planAt:ago(24*11),
+   plan:[{task:'Arrange safe shelter',due:ago(24*10),done:true},{task:'Protection order application (Domestic Violence Act 2010)',due:ago(-24*3),done:false}],
+   referrals:[{id:'R4',svc:'s9',note:'Short stay',date:ago(24*11),status:'Declined',feedback:'Survivor chose to stay with sister.',upd:ago(24*10)},{id:'R5',svc:'s8',note:'Protection order',date:ago(24*9),status:'Accepted',feedback:'Panel lawyer assigned.',upd:ago(24*8)}],
+   notes:[{date:ago(24*3),by:'CW-03',text:'Met at sister\'s home. Lawyer meeting scheduled.'}],closure:null},
+  {id:'GBV-RAJ-2026-0022',created:ago(24*20),incident:ago(24*40),type:'denial',loc:'home',perp:'family',age:'41–59',sex:'f',disab:true,district:'RAJ',tech:false,isChild:false,risk:'Low',flags:['depend'],needs:['econ','legal'],consent:{services:true,conf:true,cm:true,share:true,date:ago(24*20)},worker:'CW-03',status:'Action plan',emergency:false,planAt:ago(24*18),
+   plan:[{task:'Arrange livelihood support',due:ago(24*15),done:false}],referrals:[],
+   notes:[{date:ago(24*16),by:'CW-03',text:'In-laws withholding widow allowance card.'}],closure:null},
+  {id:'GBV-SYL-2026-0005',created:ago(24*4),incident:ago(24*9),type:'psych',loc:'online',perp:'known',age:'18–25',sex:'f',disab:false,district:'SYL',tech:true,isChild:false,risk:'Medium',flags:['escalate'],needs:['psych','legal'],consent:{services:true,conf:true,cm:true,share:false,date:ago(24*4)},worker:'CW-09',status:'Open',emergency:false,planAt:null,
+   plan:[],referrals:[],notes:[],closure:null},
+  {id:'GBV-DHK-2026-0033',created:ago(24*45),incident:ago(24*46),type:'sexual',loc:'work',perp:'authority',age:'26–40',sex:'f',disab:false,district:'DHK',tech:false,isChild:false,risk:'Medium',flags:['pressure'],needs:['psych','legal'],consent:{services:true,conf:true,cm:true,share:true,date:ago(24*45)},worker:'CW-07',status:'Closed',emergency:false,planAt:ago(24*44),
+   plan:[{task:'Arrange psychosocial support',due:ago(24*42),done:true},{task:'Support complaint to workplace complaint committee',due:ago(24*35),done:true}],
+   referrals:[{id:'R6',svc:'s6',note:'Counselling',date:ago(24*43),status:'Delivered',feedback:'Six sessions completed.',upd:ago(24*20)}],
+   notes:[{date:ago(24*12),by:'CW-07',text:'Closure interview done. Survivor knows how to reopen.'}],closure:{reason:'goals',date:ago(24*10),by:'Supervisor'}}
+ ];
+ return {v:1,lang:'en',role:'caseworker',seq:42,services,cases,suppress:false};
+}
+
+/* ---------- rendering ---------- */
+function render(){
+ document.documentElement.lang=lang();
+ const navs=NAVS[S.role];
+ if(!view||(view!=='case'&&!navs.includes(view)))view=navs[0];
+ if(view==='case'&&!canCase())view=navs[0];
+ const V={dash:vDash,new:vNew,cases:vCases,case:vCase,ref:vRef,dir:vDir,rep:vRep,sop:vSop,set:vSet};
+ const cur=view==='case'?'cases':view;
+ document.getElementById('app').innerHTML=`
+ <header class="top">
+  <div class="brand">${esc(t('app'))}<small>${esc(t('sub'))}</small></div>
+  <div class="spacer"></div>
+  <select data-chg="role" aria-label="${esc(t('role'))}" class="hide-m">${Object.keys(NAVS).map(r=>`<option value="${r}" ${r===S.role?'selected':''}>${esc(t('r_'+r))}</option>`).join('')}</select>
+  <button class="pill" data-act="lang" lang="${lang()==='en'?'bn':'en'}">${lang()==='en'?'বাংলা':'English'}</button>
+  <button class="pill" data-act="lock">${esc(t('lock'))}</button>
+  <button class="exit" data-act="exit" title="Esc Esc">${esc(t('exit'))}</button>
+ </header>
+ <div class="shell">
+  <nav aria-label="Main">${navs.map(n=>`<button data-act="nav" data-v="${n}" ${n===cur?'aria-current="page"':''}>${esc(t('nav_'+n))}</button>`).join('')}</nav>
+  <main id="main">${V[view]()}</main>
+ </div>`;
+}
+
+function caseRow(c,extra){
+ return `<button class="rowlink" data-act="case" data-v="${c.id}"><span><span class="code">${c.id}</span> <span class="meta">${esc(L(find(TYPES,c.type)))}</span></span><span>${extra||''} ${chip(c.risk)} <span class="chip n">${esc(stLabel(c.status))}</span></span></button>`;
+}
+
+function vDash(){
+ const act=S.cases.filter(c=>c.status!=='Closed');
+ const refs=S.cases.flatMap(c=>c.referrals.map(r=>({...r,cid:c.id})));
+ const waiting=refs.filter(r=>r.status==='Sent');
+ if(S.role==='focal'){
+  const cnt=k=>refs.filter(r=>r.status===k).length;
+  return `<h1>${esc(t('nav_dash'))}</h1><p class="lede">${esc(t('ref_lede'))}</p>
+  <div class="tiles">${REFST.map(s=>`<div class="tile ${s.k==='Sent'&&waiting.some(refOver)?'alert':''}"><b>${bnNum(cnt(s.k))}</b><span>${esc(rsLabel(s.k))}</span></div>`).join('')}</div>
+  <h2>${esc(t('ref_late'))}</h2><div class="list">${waiting.filter(refOver).map(r=>`<div class="row"><span><span class="code">${r.cid}</span> ${esc(svcName(r.svc))}</span><span class="meta">${esc(t('sent'))} ${fDT(r.date)}</span></div>`).join('')||`<p class="muted">${esc(t('nothing'))}</p>`}</div>`;
+ }
+ const attn=[];
+ act.forEach(c=>{const why=[];if(planOver(c))why.push(t('plan_over'));if(fuOver(c))why.push(t('fu_due'));if(c.referrals.some(refOver))why.push(t('ref_late'));if(why.length)attn.push({c,why})});
+ attn.sort((a,b)=>({High:0,Medium:1,Low:2}[a.c.risk]-{High:0,Medium:1,Low:2}[b.c.risk]));
+ const win=act.filter(inWindow);
+ return `<h1>${esc(t('nav_dash'))}</h1><p class="lede">${esc(t('dash_lede'))}</p>
+ <div class="tiles">
+  <div class="tile"><b>${bnNum(act.length)}</b><span>${esc(t('open'))}</span></div>
+  <div class="tile ${act.some(c=>c.risk==='High')?'alert':''}"><b>${bnNum(act.filter(c=>c.risk==='High').length)}</b><span>${esc(t('high'))}</span></div>
+  <div class="tile ${act.some(fuOver)?'alert':''}"><b>${bnNum(act.filter(fuOver).length)}</b><span>${esc(t('fu_over'))}</span></div>
+  <div class="tile ${waiting.some(refOver)?'alert':''}"><b>${bnNum(waiting.length)}</b><span>${esc(t('ref_wait'))}</span></div>
+ </div>
+ ${win.length?`<h2>${esc(t('window_t'))}</h2><div class="list">${win.map(c=>caseRow(c,`<span class="chip late">${bnNum(Math.max(0,Math.floor(120-hrsSince(c))))} ${esc(t('left'))}</span>`)).join('')}</div>`:''}
+ <h2>${esc(t('attention'))}</h2>
+ <div class="list">${attn.map(a=>caseRow(a.c,a.why.map(w=>`<span class="chip late">${esc(w)}</span>`).join(' '))).join('')||`<p class="muted">${esc(t('nothing'))}</p>`}</div>
+ <p class="notice small">${esc(t('proto'))}</p>`;
+}
+
+function opts(arr,val){return `<option value="">${esc(t('choose'))}</option>`+arr.map(o=>`<option value="${esc(o.k)}" ${o.k===val?'selected':''}>${esc(L(o))}</option>`).join('')}
+
+function vNew(){
+ if(!wiz)wiz={step:0,d:{danger:'no',medical:'no',isChild:false,c_services:false,c_conf:false,c_cm:false,c_share:false,type:'',incident:toLocal(new Date()),loc:'',perp:'',age:'',sex:'f',disab:'no',district:'DHK',tech:false,flags:[],needs:[],worker:'',summary:''}};
+ const d=wiz.d, st=wiz.step, names=['s0','s1','s2','s3','s4'];
+ let body='';
+ if(st===0){
+  body=`<fieldset style="border:0;padding:0;margin:0"><legend><b>${esc(t('danger_q'))}</b></legend><div class="radios">${['yes','no'].map(v=>`<label class="check"><input type="radio" name="danger" value="${v}" data-rerender="1" ${d.danger===v?'checked':''}>${esc(t(v))}</label>`).join('')}</div></fieldset>
+  <fieldset style="border:0;padding:0;margin:.8rem 0 0"><legend><b>${esc(t('medical_q'))}</b></legend><div class="radios">${['yes','no'].map(v=>`<label class="check"><input type="radio" name="medical" value="${v}" data-rerender="1" ${d.medical===v?'checked':''}>${esc(t(v))}</label>`).join('')}</div></fieldset>
+  ${d.danger==='yes'||d.medical==='yes'?`<div class="notice crit">${esc(t('danger_msg'))} <a href="tel:999" style="color:inherit;font-weight:700">999</a></div>`:''}`;
+ }else if(st===1){
+  body=['c_services','c_conf','c_cm','c_share'].map(k=>`<label class="check"><input type="checkbox" name="${k}" ${d[k]?'checked':''}>${esc(t(k))}</label>`).join('')+
+  `<label class="check" style="margin-top:.6rem"><input type="checkbox" name="isChild" data-rerender="1" ${d.isChild?'checked':''}><b>${esc(t('is_child'))}</b></label>${d.isChild?`<div class="notice">${esc(t('child_msg'))}</div>`:''}`;
+ }else if(st===2){
+  body=`<div class="grid2">
+  <div><label for="f-type">${esc(t('type'))}</label><select id="f-type" name="type">${opts(TYPES,d.type)}</select></div>
+  <div><label for="f-inc">${esc(t('incident'))}</label><input id="f-inc" type="datetime-local" name="incident" value="${esc(d.incident)}"></div>
+  <div><label for="f-loc">${esc(t('loc'))}</label><select id="f-loc" name="loc">${opts(LOCS,d.loc)}</select></div>
+  <div><label for="f-perp">${esc(t('perp'))}</label><select id="f-perp" name="perp">${opts(PERPS,d.perp)}</select></div>
+  <div><label for="f-age">${esc(t('age'))}</label><select id="f-age" name="age">${opts(AGES,d.age)}</select></div>
+  <div><label for="f-sex">${esc(t('sex'))}</label><select id="f-sex" name="sex">${opts(SEXES,d.sex)}</select></div>
+  <div><label for="f-dist">${esc(t('district'))}</label><select id="f-dist" name="district">${DISTRICTS.map(o=>`<option value="${o.k}" ${o.k===d.district?'selected':''}>${esc(L(o))}</option>`).join('')}</select></div>
+  <div><label for="f-dis">${esc(t('disab'))}</label><select id="f-dis" name="disab"><option value="no" ${d.disab==='no'?'selected':''}>${esc(t('no'))}</option><option value="yes" ${d.disab==='yes'?'selected':''}>${esc(t('yes'))}</option></select></div>
+  </div><label class="check" style="margin-top:.8rem"><input type="checkbox" name="tech" ${d.tech?'checked':''}>${esc(t('tech'))}</label>`;
+ }else if(st===3){
+  const r=calcRisk(d.flags,d.isChild);
+  body=`<p class="muted">${esc(t('risk_lede'))}</p>${RISKS.map(x=>`<label class="check"><input type="checkbox" name="flags" data-group="1" value="${x.k}" ${d.flags.includes(x.k)?'checked':''}>${x.crit?'<b>':''}${esc(L(x))}${x.crit?'</b>':''}</label>`).join('')}
+  <p style="margin-top:1rem">${esc(t('risk_now'))}: <span id="riskLive">${chip(r)}</span></p>`;
+ }else{
+  body=`<fieldset style="border:0;padding:0;margin:0"><legend><b>${esc(t('needs_q'))}</b></legend>${NEEDS.filter(n=>n.k!=='childp'||d.isChild).map(n=>`<label class="check"><input type="checkbox" name="needs" data-group="1" value="${n.k}" ${d.needs.includes(n.k)?'checked':''}>${esc(L(n))}</label>`).join('')}</fieldset>
+  <label for="f-w">${esc(t('worker'))}</label><input id="f-w" name="worker" value="${esc(d.worker)}">
+  <label for="f-s">${esc(t('summary'))}</label><textarea id="f-s" name="summary">${esc(d.summary)}</textarea>`;
+ }
+ return `<h1>${esc(t('new_t'))}</h1><p class="lede">${esc(t('new_lede'))}</p>
+ <div class="steps" aria-hidden="true">${names.map((n,i)=>`<span class="${i<=st?'on':''}"></span>`).join('')}</div>
+ <p class="stepname">${bnNum(st+1)} / ${bnNum(5)}</p><h2 style="margin-top:.2rem">${esc(t(names[st]))}</h2>
+ <div class="panel" id="wiz">${body}</div>
+ <div class="actions">${st>0?`<button class="btn ghost" data-act="wback">${esc(t('back'))}</button>`:''}${st<4?`<button class="btn" data-act="wnext">${esc(t('next'))}</button>`:`<button class="btn" data-act="wcreate">${esc(t('create'))}</button>`}</div>`;
+}
+
+function readWiz(){
+ const d=wiz.d, box=document.getElementById('wiz'); if(!box)return; const groups={};
+ box.querySelectorAll('[name]').forEach(el=>{const n=el.name;
+  if(el.type==='checkbox'&&el.dataset.group){groups[n]=groups[n]||[];if(el.checked)groups[n].push(el.value)}
+  else if(el.type==='checkbox')d[n]=el.checked;
+  else if(el.type==='radio'){if(el.checked)d[n]=el.value}
+  else d[n]=el.value});
+ Object.assign(d,groups);
+}
+
+function createCase(){
+ readWiz(); const d=wiz.d, risk=calcRisk(d.flags,d.isChild), nowIso=new Date().toISOString();
+ const inc=d.incident?new Date(d.incident):new Date();
+ const id=`GBV-${d.district}-${new Date().getFullYear()}-${String(S.seq++).padStart(4,'0')}`;
+ const due=days=>new Date(Date.now()+days*DAY).toISOString(), plan=[];
+ if((d.type==='rape'||d.type==='sexual')&&Date.now()-inc<120*HR)plan.push({task:'Urgent medical referral: PEP, emergency contraception, forensic exam (with consent)',due:nowIso,done:false});
+ if(risk==='High')plan.push({task:'Develop safety plan with the survivor',due:due(0.5),done:false});
+ d.needs.forEach(k=>{const n=find(NEEDS,k);plan.push({task:'Arrange '+n.en.toLowerCase(),due:due(risk==='High'?1:3),done:false})});
+ if(d.isChild)plan.push({task:'Case conference with supervisor (child survivor)',due:due(2),done:false});
+ const who=d.worker||roleLabel();
+ S.cases.unshift({id,created:nowIso,incident:inc.toISOString(),type:d.type,loc:d.loc,perp:d.perp,age:d.age,sex:d.sex,disab:d.disab==='yes',district:d.district,tech:!!d.tech,isChild:!!d.isChild,risk,flags:d.flags,needs:d.needs,
+  consent:{services:!!d.c_services,conf:!!d.c_conf,cm:!!d.c_cm,share:!!d.c_share,date:nowIso},worker:who,status:plan.length?'Action plan':'Open',emergency:d.danger==='yes'||d.medical==='yes',planAt:plan.length?nowIso:null,
+  plan,referrals:[],notes:d.summary.trim()?[{date:nowIso,by:who,text:d.summary.trim()}]:[],closure:null});
+ save(); wiz=null; sel=id; view='case'; render(); toast(t('created')+': '+id);
+}
+
+function vCases(){
+ let list=S.cases.slice();
+ if(filt.status==='active')list=list.filter(c=>c.status!=='Closed');else if(filt.status!=='all')list=list.filter(c=>c.status===filt.status);
+ if(filt.risk!=='all')list=list.filter(c=>c.risk===filt.risk);
+ if(filt.q)list=list.filter(c=>c.id.toLowerCase().includes(filt.q.toLowerCase()));
+ return `<h1>${esc(t('cases_t'))}</h1><p class="lede">${esc(t('dash_lede'))}</p>
+ <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:1rem">
+  <div><label for="fs">${esc(t('status'))}</label><select id="fs" data-chg="fstatus"><option value="active" ${filt.status==='active'?'selected':''}>${esc(t('open'))}</option><option value="all" ${filt.status==='all'?'selected':''}>${esc(t('all'))}</option>${STATUSES.map(s=>`<option value="${s.k}" ${filt.status===s.k?'selected':''}>${esc(stLabel(s.k))}</option>`).join('')}</select></div>
+  <div><label for="fr">${esc(t('risk'))}</label><select id="fr" data-chg="frisk"><option value="all">${esc(t('all'))}</option>${['High','Medium','Low'].map(r=>`<option value="${r}" ${filt.risk===r?'selected':''}>${esc(L(RISKL[r]))}</option>`).join('')}</select></div>
+  <div><label for="fq">${esc(t('search'))}</label><input id="fq" data-chg="fq" value="${esc(filt.q)}" placeholder="GBV-DHK-"></div>
+ </div>
+ <div class="list">${list.map(c=>caseRow(c,[planOver(c)?t('plan_over'):'',fuOver(c)?t('fu_due'):''].filter(Boolean).map(w=>`<span class="chip late">${esc(w)}</span>`).join(' '))).join('')||`<p class="muted">—</p>`}</div>`;
+}
+
+function clock(c){
+ if(!(c.type==='rape'||c.type==='sexual'))return '';
+ const h=hrsSince(c); if(h<0||h>168)return '';
+ const sc=144, p=x=>Math.min(100,Math.max(0,x/sc*100));
+ const l72=Math.floor(72-h), l120=Math.floor(120-h);
+ const cell=(lbl,n)=>`<div><span class="small muted">${esc(lbl)}</span><b>${n>0?bnNum(n)+' '+esc(t('left')):esc(t('passed'))}</b></div>`;
+ return `<section class="panel"><h2>${esc(t('clock'))}</h2>
+ <div class="clock" role="img" aria-label="${esc(t('clock'))}: ${Math.floor(h)} h">
+  <div class="fill" style="width:${p(h)}%"></div>
+  <div class="now" style="left:${p(h)}%">${esc(t('now'))}, ${bnNum(Math.floor(h))} h</div>
+  <div class="mark" style="left:${p(72)}%"><span>72 h</span></div>
+  <div class="mark" style="left:${p(120)}%"><span>120 h</span></div>
+ </div>
+ <div class="clockfacts">${cell(t('pep'),l72)}${cell(t('ec'),l120)}</div>
+ <p class="notice small">${esc(t('clock_note'))}</p></section>`;
+}
+
+function vCase(){
+ const c=S.cases.find(x=>x.id===sel); if(!c)return `<p>—</p>`;
+ const closed=c.status==='Closed', sup=S.role==='supervisor';
+ const fact=(k,v)=>`<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`;
+ const svcOpts=S.services.map(s=>`<option value="${s.id}">${esc(L(s))} (${esc(secLabel(s.sector))})</option>`).join('');
+ const today=new Date(); const dd=`${today.getFullYear()}-${z(today.getMonth()+1)}-${z(today.getDate())}`;
+ return `<button class="btn ghost sm" data-act="nav" data-v="cases">${esc(t('case_back'))}</button>
+ <h1 style="margin-top:.8rem" class="code">${c.id}</h1>
+ <p>${chip(c.risk)} <span class="chip n">${esc(stLabel(c.status))}</span> ${c.isChild?`<span class="chip late">${esc(t('child'))}</span>`:''} ${c.emergency?`<span class="chip late">${esc(t('emergency'))}</span>`:''} ${fuOver(c)?`<span class="chip late">${esc(t('fu_due'))}</span>`:''}</p>
+ <section class="panel"><dl class="facts">
+  ${fact(t('type'),esc(L(find(TYPES,c.type))))}${fact(t('incident'),fDT(c.incident))}${fact(t('loc'),esc(L(find(LOCS,c.loc))||'—'))}${fact(t('perp'),esc(L(find(PERPS,c.perp))||'—'))}
+  ${fact(t('age')+' / '+t('sex'),esc(L(find(AGES,c.age)))+' / '+esc(L(find(SEXES,c.sex))))}${fact(t('district'),esc(L(find(DISTRICTS,c.district))))}${fact(t('caseworker'),esc(c.worker))}${fact(t('opened'),fD(c.created))}
+  ${closed?'':fact(t('next_fu'),fD(new Date(fuDue(c)).toISOString()))}
+ </dl>
+ ${canCase()&&!closed?`<label for="cs">${esc(t('status'))}</label><select id="cs" data-chg="cstatus" style="max-width:260px">${STATUSES.filter(s=>s.k!=='Closed').map(s=>`<option value="${s.k}" ${c.status===s.k?'selected':''}>${esc(stLabel(s.k))}</option>`).join('')}</select>`:''}
+ </section>
+ ${closed?'':clock(c)}
+ <section class="panel"><h2>${esc(t('flags'))}</h2>${c.flags.length?`<ul>${c.flags.map(k=>`<li>${esc(L(find(RISKS,k)))}</li>`).join('')}</ul>`:`<p class="muted">${esc(t('noflags'))}</p>`}
+ <h3>${esc(t('consent_t'))} <span class="muted small">(${fD(c.consent.date)})</span></h3>
+ <ul class="small">${['c_services','c_conf','c_cm','c_share'].map(k=>`<li>${c.consent[k.slice(2)]?'✓':'✗'} ${esc(t(k))}</li>`).join('')}</ul></section>
+
+ <section class="panel"><h2>${esc(t('plan_t'))}</h2>
+ ${c.plan.length?c.plan.map((p,i)=>`<label class="task ${p.done?'done':''}"><input type="checkbox" data-act="ttask" data-v="${i}" ${p.done?'checked':''} ${closed?'disabled':''}><span>${esc(p.task)} <span class="muted small">(${esc(t('due'))} ${fD(p.due)})</span>${!p.done&&Date.now()>new Date(p.due)?` <span class="chip late">${esc(t('overdue'))}</span>`:''}</span></label>`).join(''):`<p class="muted">${esc(t('noplan'))}</p>`}
+ ${closed?'':`<div class="inline" style="margin-top:.6rem"><div><label for="tt">${esc(t('task'))}</label><input id="tt"></div><div><label for="td">${esc(t('due'))}</label><input id="td" type="date" value="${dd}"></div><button class="btn" data-act="addtask">${esc(t('add'))}</button></div>`}
+ </section>
+
+ <section class="panel"><h2>${esc(t('refs_t'))}</h2>
+ ${c.referrals.length?`<div class="tbl"><table><thead><tr><th>${esc(t('svc'))}</th><th>${esc(t('sent'))}</th><th>${esc(t('status'))}</th><th>${esc(t('feedback'))}</th></tr></thead><tbody>${c.referrals.map(r=>`<tr><td>${esc(svcName(r.svc))}<div class="muted small">${esc(r.note)}</div></td><td>${fDT(r.date)}</td><td>${esc(rsLabel(r.status))} ${refOver(r)?`<span class="chip late">48 h+</span>`:''}</td><td>${esc(r.feedback||'—')}</td></tr>`).join('')}</tbody></table></div>`:`<p class="muted">${esc(t('noref'))}</p>`}
+ ${closed?'':`${c.consent.share?'':`<div class="notice">${esc(t('share_warn'))}</div>`}
+ <label for="rs">${esc(t('svc'))}</label><select id="rs">${svcOpts}</select>
+ <label for="rn">${esc(t('note_opt'))}</label><input id="rn">
+ <label class="check" style="margin-top:.6rem"><input type="checkbox" id="rc">${esc(t('ref_consent'))}</label>
+ <div class="actions"><button class="btn" data-act="addref">${esc(t('send'))}</button></div>`}
+ </section>
+
+ <section class="panel"><h2>${esc(t('notes_t'))}</h2>
+ ${closed?'':`<textarea id="nt" aria-label="${esc(t('add_note'))}"></textarea><div class="actions" style="margin-top:.5rem"><button class="btn" data-act="addnote">${esc(t('add_note'))}</button></div>`}
+ ${c.notes.slice().reverse().map(n=>`<div class="note"><div class="meta">${fDT(n.date)}, ${esc(n.by)}</div>${esc(n.text)}</div>`).join('')}
+ </section>
+
+ <section class="panel"><h2>${esc(t('close_t'))}</h2>
+ ${closed?`<p>${esc(t('closed_on'))} ${fD(c.closure.date)} (${esc(c.closure.by)}). ${esc(t('reason'))}: ${esc(L(find(CLOSE,c.closure.reason)))}</p>${sup?`<button class="btn ghost" data-act="reopen">${esc(t('reopen'))}</button>`:''}`
+ :sup?`<label for="cr">${esc(t('reason'))}</label><select id="cr">${CLOSE.map(o=>`<option value="${o.k}">${esc(L(o))}</option>`).join('')}</select><div class="actions"><button class="btn danger" data-act="closecase">${esc(t('close_btn'))}</button></div>`
+ :`<p class="muted">${esc(t('closure_sup'))}</p>`}
+ </section>`;
+}
+
+function vRef(){
+ const rows=S.cases.flatMap(c=>c.referrals.map(r=>({r,c}))).sort((a,b)=>new Date(b.r.date)-new Date(a.r.date));
+ return `<h1>${esc(t('ref_page'))}</h1><p class="lede">${esc(t('ref_lede'))}</p>
+ <div class="tbl panel"><table><thead><tr><th>${esc(t('case'))}</th><th>${esc(t('svc'))}</th><th>${esc(t('sent'))}</th><th>${esc(t('status'))}</th><th>${esc(t('feedback'))}</th></tr></thead><tbody>
+ ${rows.map(({r,c})=>`<tr><td>${canCase()?`<button class="btn ghost sm" data-act="case" data-v="${c.id}">${c.id}</button>`:`<span class="code">${c.id}</span>`} ${chip(c.risk)}</td>
+ <td>${esc(svcName(r.svc))}<div class="muted small">${esc(r.note)}</div></td><td>${fDT(r.date)} ${refOver(r)?`<span class="chip late">48 h+</span>`:''}</td>
+ <td><select data-chg="rstatus" data-c="${c.id}" data-r="${r.id}" aria-label="${esc(t('status'))}" ${c.status==='Closed'?'disabled':''}>${REFST.map(s=>`<option value="${s.k}" ${r.status===s.k?'selected':''}>${esc(rsLabel(s.k))}</option>`).join('')}</select></td>
+ <td><input id="fb-${r.id}" value="${esc(r.feedback)}" aria-label="${esc(t('feedback'))}" ${c.status==='Closed'?'disabled':''}> ${c.status==='Closed'?'':`<button class="btn sm" style="margin-top:.3rem" data-act="savefb" data-c="${c.id}" data-v="${r.id}">${esc(t('save'))}</button>`}</td></tr>`).join('')}
+ </tbody></table></div>`;
+}
+
+function vDir(){
+ return `<h1>${esc(t('dir_t'))}</h1><p class="lede">${esc(t('dir_lede'))}</p>
+ <div class="svc">${S.services.map(s=>`<div class="panel"><span class="chip n">${esc(secLabel(s.sector))}</span><h3>${esc(L(s))}</h3>${s.num?`<a href="tel:${s.num}">${bnNum(s.num)}</a>`:''} ${s.hours?`<span class="muted small">${esc(s.hours)}</span>`:''}<p class="small">${esc(L(s.note))}</p></div>`).join('')}</div>`;
+}
+
+function bars(items){
+ const max=Math.max(1,...items.map(i=>i.n));
+ return items.map(i=>{const h=S.suppress&&i.n>0&&i.n<5;return `<div class="bar"><span>${esc(i.l)}</span><i style="width:${h?4:i.n/max*100}%;${h?'opacity:.3':''}"></i><b>${h?'&lt;'+bnNum(5):bnNum(i.n)}</b></div>`}).join('');
+}
+function vRep(){
+ const cs=S.cases, refs=cs.flatMap(c=>c.referrals);
+ const withPlan=cs.filter(c=>c.planAt), onTime=withPlan.filter(c=>new Date(c.planAt)-new Date(c.created)<=(c.risk==='High'?1:3)*DAY);
+ const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+ const closed=cs.filter(c=>c.closure), avg=closed.length?Math.round(closed.reduce((s,c)=>s+(new Date(c.closure.date)-new Date(c.created))/DAY,0)/closed.length):'—';
+ const by=(arr,key)=>arr.map(o=>({l:L(o),n:cs.filter(c=>c[key]===o.k).length}));
+ return `<h1>${esc(t('rep_t'))}</h1><p class="lede">${esc(t('rep_lede'))}</p>
+ <label class="check"><input type="checkbox" data-chg="suppress" ${S.suppress?'checked':''}>${esc(t('suppress'))}</label>
+ <div class="tiles" style="margin-top:.8rem">
+  <div class="tile"><b>${S.suppress&&cs.length<5?'&lt;5':bnNum(cs.length)}</b><span>${esc(t('k_total'))}</span></div>
+  <div class="tile"><b>${bnNum(pct(onTime.length,cs.length))}</b><span>${esc(t('k_plan'))}</span></div>
+  <div class="tile"><b>${bnNum(pct(refs.filter(r=>r.status!=='Sent').length,refs.length))}</b><span>${esc(t('k_outcome'))}</span></div>
+  <div class="tile"><b>${bnNum(avg)}</b><span>${esc(t('k_close'))}</span></div>
+ </div>
+ <div class="grid2"><section class="panel"><h2>${esc(t('by_type'))}</h2>${bars(by(TYPES,'type'))}</section>
+ <section class="panel"><h2>${esc(t('by_age'))}</h2>${bars(by(AGES,'age'))}</section>
+ <section class="panel"><h2>${esc(t('by_perp'))}</h2>${bars(by(PERPS,'perp'))}</section>
+ <section class="panel"><h2>${esc(t('ref_out'))}</h2>${bars(REFST.map(s=>({l:rsLabel(s.k),n:refs.filter(r=>r.status===s.k).length})))}</section></div>`;
+}
+
+function vSet(){
+ return `<h1>${esc(t('set_t'))}</h1>
+ <section class="panel"><label for="sr">${esc(t('role'))}</label><select id="sr" data-chg="role" style="max-width:320px">${Object.keys(NAVS).map(r=>`<option value="${r}" ${r===S.role?'selected':''}>${esc(t('r_'+r))}</option>`).join('')}</select>
+ <label>${esc(t('lang'))}</label><button class="btn ghost" data-act="lang">${lang()==='en'?'বাংলা':'English'}</button></section>
+ <section class="panel"><h2>${esc(t('sec_t'))}</h2><p>${esc(t('sec_body'))}</p><p class="notice small">${esc(t('proto'))}</p></section>
+ <section class="panel"><h2>${esc(t('demo'))}</h2><div class="actions"><button class="btn ghost" data-act="reset">${esc(t('reset'))}</button><button class="btn danger" data-act="wipe">${esc(t('wipe'))}</button></div></section>
+ <footer class="credit">Surokkha CMS prototype v1.0. Concept and SOP: Md Taufiqul Islam, Joint Secretary, Government of Bangladesh.</footer>`;
+}
+
+/* ---------- SOP ---------- */
+const SOP=[
+{n:'0',bn:'দলিল নিয়ন্ত্রণ',en:'Document control',h:`<table><tbody>
+<tr><th>Title</th><td>Standard Operating Procedure for GBV Case Response and Referral Management</td></tr>
+<tr><th>Version</th><td>1.0 (draft for adoption)</td></tr>
+<tr><th>Owner</th><td>[Lead agency], through the district GBV coordination forum</td></tr>
+<tr><th>Applies to</th><td>All agencies that sign the district referral pathway and information-sharing protocol</td></tr>
+<tr><th>Review</th><td>Every 12 months, and after any serious incident or change in law</td></tr></tbody></table>`},
+{n:'1',bn:'উদ্দেশ্য ও পরিধি',en:'Purpose and scope',h:`<p>This SOP sets one way for every agency in the referral network to respond to a disclosure of gender-based violence (GBV), manage the case, and make and track referrals, so that each survivor gets timely, safe, confidential and coordinated help and tells their story as few times as possible.</p>
+<p>It applies to caseworkers, case supervisors, referral focal points and data staff of government and non-government agencies in the district pathway, including One-Stop Crisis Centres and Cells, the National Helpline 109, police Victim Support Centres, legal aid offices, shelters and NGO case management agencies. It covers survivors of every age and gender; section 9 adds steps for children. It does not replace clinical protocols, police investigation procedure or court rules.</p>
+<h3>Key terms</h3><ul>
+<li><b>GBV:</b> any harmful act done against a person's will that is based on socially ascribed differences between women and men (IASC definition). The system uses the six GBVIMS core types.</li>
+<li><b>Survivor:</b> the person who experienced the violence. The SOP uses this word throughout.</li>
+<li><b>Case management:</b> a structured method in which one caseworker takes responsibility for making sure the survivor is informed of options, and that services are coordinated and followed up.</li>
+<li><b>Referral:</b> a consented request to another provider to deliver a service, with feedback to the referring caseworker.</li>
+<li><b>Warm referral:</b> the caseworker introduces or accompanies the survivor to the receiving provider.</li></ul>`},
+{n:'2',bn:'মূলনীতি',en:'Guiding principles',h:`<ul>
+<li><b>Safety first:</b> the physical and emotional safety of the survivor, their family and staff comes before any other step.</li>
+<li><b>Confidentiality:</b> information is shared only with the survivor's informed consent, on a need-to-know basis, within the limits in section 8.</li>
+<li><b>Respect and self-determination:</b> the survivor decides. No service, including medical care, depends on reporting to police or filing a case.</li>
+<li><b>Non-discrimination:</b> equal treatment regardless of age, sex, disability, religion, ethnicity, marital status, sexual orientation, occupation or nationality.</li>
+<li><b>Do no harm:</b> no repeated interviews, no victim-blaming questions, no photographs, no contact with the alleged perpetrator.</li>
+<li><b>Best interests of the child:</b> the deciding test for every action involving a survivor under 18.</li>
+<li><b>No informal settlement:</b> staff must never arrange or encourage salish or other informal settlement of GBV, and must never facilitate marriage of a survivor to the perpetrator.</li></ul>`},
+{n:'3',bn:'আইনি ও নীতিকাঠামো',en:'Legal and policy framework',h:`<p>The SOP operates within, and does not override, the following. The lead agency should confirm the latest amendments before adoption.</p>
+<ul><li>Constitution of Bangladesh: equality, non-discrimination and protection of life and personal liberty (Articles 27, 28, 31 and 32).</li>
+<li>Nari O Shishu Nirjatan Daman Ain 2000 (Prevention of Oppression Against Women and Children Act), as amended.</li>
+<li>Domestic Violence (Prevention and Protection) Act 2010: protection orders and service provider duties.</li>
+<li>Children Act 2013: Child Affairs Police Officers, probation officers and Child Welfare Boards.</li>
+<li>Child Marriage Restraint Act 2017; Dowry Prohibition Act 2018; Prevention and Suppression of Human Trafficking Act 2012; Pornography Control Act 2012.</li>
+<li>Legal Aid Services Act 2000 (National Legal Aid Services Organisation).</li>
+<li>Evidence Act 1872 as amended in 2022, which removed the provision allowing a complainant's character to be attacked in rape trials.</li>
+<li>High Court Division guidance, including the 2009 guidelines on sexual harassment at workplaces and educational institutions, and the 2018 judgment prohibiting the "two-finger test".</li>
+<li>National Women Development Policy 2011 and the national action plan on preventing violence against women and children.</li>
+<li>International: CEDAW, the Convention on the Rights of the Child, IASC GBV Guidelines (2015), Interagency GBV Case Management Guidelines, Inter-Agency Minimum Standards for GBV in Emergencies (2019), and the GBVIMS.</li></ul>`},
+{n:'4',bn:'ভূমিকা ও দায়িত্ব',en:'Roles and responsibilities',h:`<div class="tbl"><table><thead><tr><th>Role</th><th>Main responsibilities</th></tr></thead><tbody>
+<tr><td>Any staff receiving a disclosure</td><td>Listen without judging, give accurate information about services, and with consent link the survivor to a caseworker within 24 hours. Do not investigate or record details.</td></tr>
+<tr><td>Caseworker</td><td>Leads steps 1 to 6 of section 5, holds the case file, obtains consent, makes and tracks referrals, and keeps records in the system.</td></tr>
+<tr><td>Case supervisor</td><td>Reviews every high-risk and child case within 48 hours, runs case conferences, signs off closure, supports staff care, and handles complaints and data breaches.</td></tr>
+<tr><td>Referral focal point (each receiving agency)</td><td>Acknowledges referrals within 24 hours, reports the outcome within 48 hours, and keeps the directory entry current.</td></tr>
+<tr><td>M&amp;E / information management officer</td><td>Produces aggregate reports only, applies small-cell suppression, and maintains access control and audit logs.</td></tr>
+<tr><td>District GBV coordination forum</td><td>Maintains the referral pathway, resolves escalated referral failures, and reviews indicators quarterly.</td></tr></tbody></table></div>`},
+{n:'5',bn:'কেস ব্যবস্থাপনার ধাপ',en:'Case management steps and timelines',h:`<div class="tbl"><table><thead><tr><th>Step</th><th>Standard time</th><th>System function</th></tr></thead><tbody>
+<tr><td>5.1 First contact and immediate safety</td><td>At disclosure; linked to a caseworker within 24 h</td><td>New case, step 1</td></tr>
+<tr><td>5.2 Consent, intake and assessment</td><td>Same session where possible</td><td>New case, steps 2 to 4</td></tr>
+<tr><td>5.3 Case action plan</td><td>24 h for high risk; 3 working days otherwise</td><td>Action plan; overdue alert</td></tr>
+<tr><td>5.4 Implementation and referral</td><td>As agreed in the plan</td><td>Referrals</td></tr>
+<tr><td>5.5 Follow-up</td><td>High: every 48 h; medium: weekly; low: fortnightly</td><td>Next follow-up due; overdue alert</td></tr>
+<tr><td>5.6 Closure</td><td>When criteria are met; supervisor sign-off</td><td>Case closure</td></tr></tbody></table></div>
+<h3>5.1 First contact and immediate safety</h3><p>Use Look, Listen, Link (psychological first aid). If the survivor is in immediate danger, call 999 or move to a safe place. If there is a medical emergency, arrange transport to the nearest One-Stop Crisis Centre or hospital first; intake can wait.</p>
+<h3>5.2 Consent, intake and assessment</h3><p>Meet in a private space with a caseworker of the sex the survivor prefers, and a trained interpreter if needed. Obtain informed consent before recording anything (section 8). Assess safety, health, psychosocial wellbeing, legal wishes and basic needs, and complete the risk assessment. Record only what services need; do not ask for details of the violence beyond what the survivor offers.</p>
+<h3>5.3 Case action plan</h3><p>Agree goals and actions with the survivor, name who does what by when, and record them. For high risk, write a safety plan covering safe contacts, safe places, a code word, and what to do if the perpetrator returns.</p>
+<h3>5.4 Implementation</h3><p>Deliver direct services and make referrals using section 7. Accompany the survivor for high-risk and child cases where possible.</p>
+<h3>5.5 Follow-up</h3><p>Contact through the channel the survivor agreed is safe. Re-assess risk at every contact and update the plan. If a contact fails, try three times over the following week, then consult the supervisor.</p>
+<h3>5.6 Closure</h3><p>Close when goals are met and the survivor is safe; the survivor asks to close; the survivor moves and the case is transferred with consent; or there has been no contact for 30 days after three attempts. The supervisor reviews and signs off. Where safe, hold a closure conversation and explain how to reopen the case.</p>`},
+{n:'6',bn:'যৌন সহিংসতায় সময়-সংবেদনশীল চিকিৎসা',en:'Time-critical care after sexual violence',h:`<ul>
+<li>Refer immediately for medical care. Treatment never waits for a police report, GD, FIR or court order.</li>
+<li>HIV post-exposure prophylaxis must start within 72 hours; emergency contraception is effective up to 120 hours. The system shows a clinical window for every rape or sexual assault case.</li>
+<li>Forensic evidence is best collected within 72 hours, but refer even later, since some evidence and the medico-legal certificate remain valuable.</li>
+<li>If the survivor wants a forensic exam, advise, without insisting, that they avoid bathing or changing clothes until it is done; keep any clothing in a paper bag.</li>
+<li>The exam is done by a trained provider, by a female doctor where the survivor prefers, with a female attendant present. The "two-finger test" is prohibited.</li>
+<li>Examination and evidence collection need separate consent; the survivor may accept treatment and decline forensic steps.</li>
+<li>Provide psychological first aid and offer referral for ongoing mental health support.</li></ul>`},
+{n:'7',bn:'রেফারেল পদ্ধতি',en:'Referral procedure',h:`<h3>7.1 Consent for each referral</h3><p>Explain what information will be shared, with whom and why. Consent is recorded for each referral separately; the survivor may decline any referral without losing other services.</p>
+<h3>7.2 Making the referral</h3><p>Use the standard referral form with the minimum information the receiving provider needs. Send it in person, in a sealed envelope, or through the secure system. Never send names or identifying details over unsecured messaging apps, SMS or personal email. A phone referral is followed by the form within 24 hours.</p>
+<h3>7.3 Warm referral</h3><p>For high-risk cases, children and survivors with disabilities, introduce or accompany the survivor so that they do not have to explain their situation again.</p>
+<h3>7.4 Feedback loop</h3><p>The receiving focal point acknowledges within 24 hours and reports the outcome (accepted, service delivered, or unable to provide) within 48 hours. The system flags any referral still marked "sent" after 48 hours.</p>
+<h3>7.5 Escalation</h3><p>If a referral fails or feedback does not arrive, the caseworker contacts the focal point, then the supervisor raises it with the receiving agency's supervisor, then the district coordination forum.</p>
+<h3>7.6 Keeping the pathway current</h3><p>The coordination forum updates the service directory at least every quarter, including focal points, hours, eligibility and costs.</p>`},
+{n:'8',bn:'অবহিত সম্মতি ও গোপনীয়তা',en:'Informed consent and confidentiality',h:`<p>Consent is informed when the survivor understands the services offered, possible risks and benefits, what information is recorded and shared, the right to refuse or withdraw at any time, and the limits of confidentiality.</p>
+<h3>Limits of confidentiality</h3><p>Information may be shared without consent only when there is an imminent risk to the life of the survivor or another person, when a child is at risk of serious harm, or under a court order. Explain these limits before the survivor discloses, and tell them if a limit has to be used.</p>
+<h3>Records</h3><ul><li>The system identifies survivors by case code only.</li>
+<li>Names, addresses and phone numbers stay on the paper intake and consent form, kept apart from the case file in a locked cabinet.</li>
+<li>Never share case information with family members, community leaders, employers or media without explicit consent.</li>
+<li>Never photograph survivors or injuries except as part of a medico-legal examination with consent.</li></ul>`},
+{n:'9',bn:'শিশু ভুক্তভোগী',en:'Child survivors',h:`<ul>
+<li>Every decision is tested against the child's best interests. Use trained staff, child-friendly language and a safe setting.</li>
+<li>Consent follows the Caring for Child Survivors approach: for younger children, informed consent from a non-offending caregiver plus the child's assent where they can give it; older adolescents who show sufficient understanding may give their own informed consent.</li>
+<li>If no safe caregiver is available, or the caregiver is the alleged perpetrator, the supervisor decides in the child's best interests and involves child protection services.</li>
+<li>Every child case gets a supervisor review and case conference within 48 hours.</li>
+<li>For a planned or recent child marriage, contact Child Helpline 1098 or Helpline 109 and the Upazila child marriage prevention committee through the Upazila Nirbahi Officer.</li>
+<li>Where the child is in contact with the justice system, coordinate with the Child Affairs Police Officer, probation officer and Child Welfare Board under the Children Act 2013.</li></ul>`},
+{n:'10',bn:'তথ্য সুরক্ষা ও তথ্য ব্যবস্থাপনা',en:'Data protection and information management',h:`<ul>
+<li><b>Hosting:</b> the production system runs on government-controlled infrastructure with encryption in transit and at rest, individual log-ins, two-factor authentication for supervisors, and a full audit log.</li>
+<li><b>Access by role:</b> caseworkers see their own cases; supervisors see their team's; referral focal points see only referral records sent to them; M&amp;E staff see aggregate data only.</li>
+<li><b>Minimum data:</b> collect only fields services need. Use the GBVIMS classification so data are comparable across agencies.</li>
+<li><b>Sharing:</b> only aggregate, anonymised statistics leave an agency, and only under an information-sharing protocol signed by all partners. Suppress any count under 5 in shared reports.</li>
+<li><b>Retention:</b> the lead agency sets a retention period after closure; records are then destroyed securely.</li>
+<li><b>Devices:</b> screens lock after 5 minutes; every screen has a quick-exit button; no survivor data on personal phones or messaging apps.</li>
+<li><b>Breach:</b> report any suspected breach to the supervisor within 24 hours; assess the risk to survivors, inform affected survivors where it is safe, and log corrective action.</li></ul>`},
+{n:'11',bn:'তত্ত্বাবধান, মান ও কর্মী-যত্ন',en:'Supervision, quality and staff care',h:`<ul>
+<li>Individual supervision at least every two weeks; case conference within 48 hours for every high-risk or child case.</li>
+<li>Supervisors review a sample of files monthly against this SOP.</li>
+<li>Keep caseloads manageable for the risk mix; as a planning figure, around 20 to 25 active cases per full-time caseworker.</li>
+<li>No one manages cases before completing training in GBV core concepts, psychological first aid, case management, child survivors and data protection.</li>
+<li>Staff care: regular debriefing, access to confidential counselling, and reasonable workloads.</li>
+<li>All staff sign a code of conduct on the prevention of sexual exploitation and abuse; survivors are told how to make a complaint safely.</li></ul>`},
+{n:'12',bn:'পরিবীক্ষণ সূচক',en:'Monitoring indicators',h:`<div class="tbl"><table><thead><tr><th>Indicator</th><th>Target</th></tr></thead><tbody>
+<tr><td>Rape survivors reaching health care within 72 hours of the incident, among those who disclose within 72 hours</td><td>100%</td></tr>
+<tr><td>Case action plans completed within the standard time</td><td>90%</td></tr>
+<tr><td>Referrals with outcome reported within 48 hours</td><td>85%</td></tr>
+<tr><td>Follow-ups done on time</td><td>90%</td></tr>
+<tr><td>Referrals made with documented survivor consent</td><td>100%</td></tr>
+<tr><td>Closed cases with supervisor sign-off</td><td>100%</td></tr>
+<tr><td>Survivors reporting satisfaction with services (exit feedback, where safe)</td><td>80%</td></tr></tbody></table></div>`},
+{n:'13',bn:'সংযুক্তি ও ফর্ম',en:'Annexes and forms',h:`<p>Each paper form mirrors a screen in the digital system, so agencies without connectivity can follow the same process and enter data later.</p><ul>
+<li>A. Intake and assessment form</li><li>B. Informed consent and assent form</li><li>C. Safety risk assessment</li><li>D. Case action plan and safety plan</li><li>E. Referral form</li><li>F. Referral feedback slip</li><li>G. Case closure form</li><li>H. Information-sharing protocol template</li><li>I. District service directory</li></ul>`}
+];
+function vSop(){
+ return `<h1>${esc(t('sop_t'))}</h1><p class="lede">${esc(t('sop_lede'))}</p>
+ ${SOP.map((s,i)=>`<details class="sop" ${i===0?'open':''}><summary>${bnNum(s.n)}. ${esc(lang()==='bn'?s.bn:s.en)}${lang()==='bn'?`<small>${esc(s.en)}</small>`:''}</summary><div class="sop-body">${s.h}</div></details>`).join('')}`;
+}
+
+/* ---------- actions ---------- */
+function curCase(){return S.cases.find(x=>x.id===sel)}
+function note(c,text){c.notes.push({date:new Date().toISOString(),by:roleLabel(),text})}
+const ACT={
+ nav(v){view=v;sel=null;if(v!=='new')wiz=null;render();window.scrollTo(0,0)},
+ case(v){if(!canCase()){toast(t('no_access'));return}sel=v;view='case';render();window.scrollTo(0,0)},
+ lang(){S.lang=lang()==='en'?'bn':'en';save();render()},
+ lock(){lockNow()},
+ exit(){quickExit()},
+ wnext(){readWiz();const d=wiz.d;if(wiz.step===1&&!d.c_cm){toast(t('need_cm'));return}if(wiz.step===2&&(!d.type||!d.age)){toast(t('need_basic'));return}
+  if(wiz.step===2&&d.isChild===false&&(d.age==='0–11'||d.age==='12–17'))d.isChild=true;
+  wiz.step++;render();window.scrollTo(0,0)},
+ wback(){readWiz();wiz.step--;render()},
+ wcreate(){createCase()},
+ ttask(v){const c=curCase();c.plan[+v].done=!c.plan[+v].done;save();render()},
+ addtask(){const c=curCase(),tt=document.getElementById('tt').value.trim(),td=document.getElementById('td').value;if(!tt)return;c.plan.push({task:tt,due:new Date((td||new Date().toISOString().slice(0,10))+'T17:00').toISOString(),done:false});if(!c.planAt)c.planAt=new Date().toISOString();if(c.status==='Open')c.status='Action plan';save();render()},
+ addref(){const c=curCase();if(!document.getElementById('rc').checked){toast(t('need_consent'));return}
+  const svc=document.getElementById('rs').value;c.referrals.push({id:'R'+Date.now(),svc,note:document.getElementById('rn').value.trim(),date:new Date().toISOString(),status:'Sent',feedback:''});
+  note(c,'Referral sent to '+svcName(svc)+' with survivor consent.');if(c.status!=='Closed')c.status='Follow-up';save();render();toast(t('send'))},
+ addnote(){const c=curCase(),v=document.getElementById('nt').value.trim();if(!v)return;note(c,v);save();render()},
+ closecase(){if(S.role!=='supervisor')return;const c=curCase();c.status='Closed';c.closure={reason:document.getElementById('cr').value,date:new Date().toISOString(),by:roleLabel()};save();render()},
+ reopen(){const c=curCase();c.status='Follow-up';note(c,'Case reopened by supervisor.');c.closure=null;save();render()},
+ savefb(v,b){const c=S.cases.find(x=>x.id===b.dataset.c),r=c.referrals.find(x=>x.id===v);r.feedback=document.getElementById('fb-'+v).value.trim();r.upd=new Date().toISOString();save();toast(t('done'))},
+ reset(v,b){if(!b.dataset.armed){b.dataset.armed=1;b.textContent=t('again');return}const keep={lang:S.lang,role:S.role};S=seed();Object.assign(S,keep);save();view=null;sel=null;render();toast(t('done'))},
+ wipe(v,b){if(!b.dataset.armed){b.dataset.armed=1;b.textContent=t('again');return}S.cases=[];save();view=null;sel=null;render();toast(t('done'))},
+ unlock(){const p=document.getElementById('pin');if(p.value===PIN){document.getElementById('lock').style.display='none';p.value='';lastAct=Date.now()}else toast(t('bad_pin'))}
+};
+const CHG={
+ role(v){S.role=v;save();view=null;sel=null;wiz=null;render()},
+ fstatus(v){filt.status=v;render()},frisk(v){filt.risk=v;render()},
+ fq(v){filt.q=v;render();const q=document.getElementById('fq');if(q){q.focus();q.setSelectionRange(v.length,v.length)}},
+ cstatus(v){const c=curCase();c.status=v;save();render()},
+ suppress(v,el){S.suppress=el.checked;save();render()},
+ rstatus(v,el){const c=S.cases.find(x=>x.id===el.dataset.c),r=c.referrals.find(x=>x.id===el.dataset.r);r.status=v;r.upd=new Date().toISOString();note(c,'Referral to '+svcName(r.svc)+' marked '+v+'.');save();render()}
+};
+
+document.addEventListener('click',e=>{lastAct=Date.now();const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;if(ACT[a]){if(b.tagName!=='INPUT')e.preventDefault();ACT[a](b.dataset.v,b)}});
+document.addEventListener('change',e=>{const el=e.target;
+ if(el.closest&&el.closest('#wiz')&&wiz){readWiz();if(el.dataset.rerender){render();return}if(wiz.step===3){const r=document.getElementById('riskLive');if(r)r.innerHTML=chip(calcRisk(wiz.d.flags,wiz.d.isChild))}return}
+ const k=el.dataset.chg;if(k&&CHG[k])CHG[k](el.value,el)});
+document.addEventListener('keydown',e=>{lastAct=Date.now();
+ if(e.key==='Escape'){const n=Date.now();if(n-escAt<900)quickExit();escAt=n}
+ if(e.key==='Enter'&&e.target.id==='pin')ACT.unlock()});
+['mousemove','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now()},{passive:true}));
+
+function lockNow(){const l=document.getElementById('lock');document.getElementById('lockTitle').textContent=t('lock_t');document.getElementById('lockHint').textContent=t('lock_hint');document.getElementById('pinLabel').textContent=t('pin');document.getElementById('unlockBtn').textContent=t('unlock');l.style.display='flex';setTimeout(()=>document.getElementById('pin').focus(),50)}
+setInterval(()=>{if(Date.now()-lastAct>5*60*1000&&document.getElementById('lock').style.display!=='flex')lockNow()},20000);
+function quickExit(){document.getElementById('app').innerHTML='';const u='https://www.google.com/search?q=weather+today';try{window.top.location.replace(u)}catch(e){try{window.location.replace(u)}catch(e2){}}}
+let tt;function toast(m){const el=document.getElementById('toast');el.textContent=m;el.style.display='block';clearTimeout(tt);tt=setTimeout(()=>el.style.display='none',3200)}
+
+render();
+})();
+</script>
+</body>
+</html>
